@@ -105,3 +105,38 @@ class BilgisizAramaAjani(AjanTabani):
             "open_list": open_list,
             "closed_list": closed_list
         }
+
+    # -----------------------------------------------------------------
+    # ALGORİTMA 1: GENİŞLİK ÖNCELİKLİ ARAMA (BFS - Breadth-First Search)
+    # -----------------------------------------------------------------
+    def bfs(self, baslangic, hedef):
+        """
+        Kenar maliyetlerini dikkate almadan düğüm (adım) sayısı en az olan rotayı bulur.
+        OPEN listesi FIFO Kuyruk ile yönetilir.
+        """
+        baslangic_zamani = time.perf_counter()
+
+        if baslangic not in self.graf or hedef not in self.graf:
+            return self._sonuc_paketle("BFS", None, float("inf"), baslangic_zamani, [], [])
+
+        open_kuyruk = Kuyruk()
+        open_kuyruk.ekle((baslangic, [baslangic], 0))  # (mevcut_dugum, yol, toplam_maliyet)
+        open_kumesi = {baslangic}  # OPEN listesinde bekleyen düğümler
+        closed_list = []           # CLOSED listesi: Genişletilen düğümler
+
+        while not open_kuyruk.bos_mu():
+            mevcut_dugum, yol, maliyet = open_kuyruk.cikar()
+            open_kumesi.discard(mevcut_dugum)
+
+            if mevcut_dugum == hedef:
+                kalan_open = [eleman[0] for eleman in open_kuyruk.elemanlar]
+                return self._sonuc_paketle("BFS", yol, maliyet, baslangic_zamani, kalan_open, closed_list)
+
+            closed_list.append(mevcut_dugum)
+
+            for komsu, kenar_maliyeti in self.graf[mevcut_dugum].items():
+                if komsu not in closed_list and komsu not in open_kumesi:
+                    open_kuyruk.ekle((komsu, yol + [komsu], maliyet + kenar_maliyeti))
+                    open_kumesi.add(komsu)
+
+        return self._sonuc_paketle("BFS", None, float("inf"), baslangic_zamani, [], closed_list)
