@@ -52,7 +52,7 @@ class OncelikliKuyruk:
     """UCS için toplam yol maliyeti g(n) en düşük düğümü öne alan Min-Heap yapısı."""
     def __init__(self):
         self.elemanlar = []
-        self._sayac = 0  # Maliyetler eşitse eklenme sırasını korumak için sayaç ekledim
+        self._sayac = 0  # Maliyetler eşitse eklenme sırasını korumak için
 
     def ekle(self, maliyet, veri):
         heapq.heappush(self.elemanlar, (maliyet, self._sayac, veri))
@@ -89,8 +89,6 @@ class BilgisizAramaAjani(AjanTabani):
             algilayicilar=["Konum düğüm sensörü", "Koridor maliyet haritası"]
         )
         super().__init__("AJAN-02A", "Bilgisiz Arama Navigasyon Ajanı", "Modül 2 (Bilgisiz Arama)", peas)
-
-        #Modül 1 'deki hastane ortamı grafı
         self.graf = hastane_ortami.hastane_grafi
 
     def _sonuc_paketle(self, algoritma_adi, rota, toplam_maliyet, baslangic_zamani, open_list, closed_list):
@@ -120,9 +118,9 @@ class BilgisizAramaAjani(AjanTabani):
             return self._sonuc_paketle("BFS", None, float("inf"), baslangic_zamani, [], [])
 
         open_kuyruk = Kuyruk()
-        open_kuyruk.ekle((baslangic, [baslangic], 0))  # (mevcut_dugum, yol, toplam_maliyet)
-        open_kumesi = {baslangic}  # OPEN listesinde bekleyen düğümler
-        closed_list = []           # CLOSED listesi: Genişletilen düğümler
+        open_kuyruk.ekle((baslangic, [baslangic], 0))
+        open_kumesi = {baslangic}
+        closed_list = []
 
         while not open_kuyruk.bos_mu():
             mevcut_dugum, yol, maliyet = open_kuyruk.cikar()
@@ -176,14 +174,13 @@ class BilgisizAramaAjani(AjanTabani):
                         open_kumesi.add(komsu)
 
         return self._sonuc_paketle("DFS", None, float("inf"), baslangic_zamani, [], closed_list)
-
     # -----------------------------------------------------------------
     # ALGORİTMA 3: YİNELEMELİ DERİNLEŞEN ARAMA (IDS - Iterative Deepening Search)
     # -----------------------------------------------------------------
     def ids(self, baslangic, hedef):
         """
         Derinlik limitini 0'dan başlatıp her turda 1 artırarak DFS çalıştırır.
-        En az adım garantisi ile düşük bellek kullanımını birleştirir.
+        Aynı düğüme farklı derinliklerden ulaşıldığında daha sığ (kısa) olan yolu engellemez.
         """
         baslangic_zamani = time.perf_counter()
 
@@ -196,6 +193,7 @@ class BilgisizAramaAjani(AjanTabani):
         for derinlik_limiti in range(maksimum_derinlik + 1):
             open_yigin = Yigin()
             open_yigin.ekle((baslangic, [baslangic], 0, 0))  # (dugum, yol, maliyet, derinlik)
+            en_iyi_derinlik = {}  # Bu derinlik turunda her düğüme ulaşılan en sığ seviye
             closed_list = []
 
             while not open_yigin.bos_mu():
@@ -206,7 +204,9 @@ class BilgisizAramaAjani(AjanTabani):
                     kalan_open = [eleman[0] for eleman in open_yigin.elemanlar]
                     return self._sonuc_paketle("IDS", yol, maliyet, baslangic_zamani, kalan_open, tum_genisletilenler)
 
-                if derinlik < derinlik_limiti and mevcut_dugum not in closed_list:
+                # Düğüm bu turda ilk kez görülüyorsa VEYA daha sığ bir derinlikten ulaşıldıysa genişlet
+                if derinlik < derinlik_limiti and derinlik < en_iyi_derinlik.get(mevcut_dugum, float("inf")):
+                    en_iyi_derinlik[mevcut_dugum] = derinlik
                     closed_list.append(mevcut_dugum)
                     for komsu, kenar_maliyeti in self.graf[mevcut_dugum].items():
                         if komsu not in yol:  # Mevcut dalda döngüyü önle
@@ -215,3 +215,100 @@ class BilgisizAramaAjani(AjanTabani):
             tum_genisletilenler.extend(closed_list)
 
         return self._sonuc_paketle("IDS", None, float("inf"), baslangic_zamani, [], tum_genisletilenler)
+
+   
+    # -----------------------------------------------------------------
+    # ALGORİTMA 4: EŞİT MALİYETLİ ARAMA (UCS - Uniform Cost Search)
+    # -----------------------------------------------------------------
+    def ucs(self, baslangic, hedef):
+        """
+        Kenar ağırlıklarını dikkate alarak toplam yol maliyeti g(n) en düşük rotayı bulur.
+        OPEN listesinde aynı düğümün daha yüksek maliyetli kopyalarının tutulmasını önler.
+        """
+        baslangic_zamani = time.perf_counter()
+
+        if baslangic not in self.graf or hedef not in self.graf:
+            return self._sonuc_paketle("UCS", None, float("inf"), baslangic_zamani, [], [])
+
+        open_kuyruk = OncelikliKuyruk()
+        open_kuyruk.ekle(0, (baslangic, [baslangic]))
+        open_en_iyi_maliyet = {baslangic: 0}
+        closed_list = []
+
+        while not open_kuyruk.bos_mu():
+            maliyet, veri = open_kuyruk.cikar()
+            mevcut_dugum, yol = veri
+
+            if maliyet > open_en_iyi_maliyet.get(mevcut_dugum, float("inf")):
+                continue
+
+            open_en_iyi_maliyet.pop(mevcut_dugum, None)
+
+            if mevcut_dugum == hedef:
+                kalan_open = list(open_en_iyi_maliyet.keys())
+                return self._sonuc_paketle("UCS", yol, maliyet, baslangic_zamani, kalan_open, closed_list)
+
+            if mevcut_dugum not in closed_list:
+                closed_list.append(mevcut_dugum)
+
+                for komsu, kenar_maliyeti in self.graf[mevcut_dugum].items():
+                    if komsu not in closed_list:
+                        yeni_maliyet = maliyet + kenar_maliyeti
+                        if yeni_maliyet < open_en_iyi_maliyet.get(komsu, float("inf")):
+                            open_en_iyi_maliyet[komsu] = yeni_maliyet
+                            open_kuyruk.ekle(yeni_maliyet, (komsu, yol + [komsu]))
+
+        return self._sonuc_paketle("UCS", None, float("inf"), baslangic_zamani, [], closed_list)
+
+    def karar_uret(self, aktif_veri):
+        """
+        AjanTabani.karar_uret metodunu ezer (override).
+        aktif_veri: {"baslangic": "...", "hedef": "...", "algoritma": "BFS/DFS/IDS/UCS"}
+        """
+        baslangic = aktif_veri["baslangic"]
+        hedef = aktif_veri["hedef"]
+        algoritma = aktif_veri.get("algoritma", "UCS").upper()
+
+        if algoritma == "BFS":
+            return self.bfs(baslangic, hedef)
+        elif algoritma == "DFS":
+            return self.dfs(baslangic, hedef)
+        elif algoritma == "IDS":
+            return self.ids(baslangic, hedef)
+        elif algoritma == "UCS":
+            return self.ucs(baslangic, hedef)
+        raise ValueError(f"Desteklenmeyen algoritma: {algoritma}")
+
+
+# =====================================================================
+# KARŞILAŞTIRMALI METRİK RAPORU VE TEST EKRANI
+# =====================================================================
+if __name__ == "__main__":
+    hastane = AkilliHastaneOrtami()
+    arama_ajani = BilgisizAramaAjani(hastane)
+
+    baslangic_noktasi = "Acil_Giris"
+    hedef_birim = "Ameliyathane_Kat2"
+
+    print("\n" + "=" * 90)
+    print(f" MODÜL 2: BİLİGİSİZ ARAMA METRİK KARŞILAŞTIRMASI ({baslangic_noktasi} -> {hedef_birim})")
+    print("=" * 90)
+    print(f"{'Algoritma':<10} | {'Maliyet':<8} | {'Genişletilen':<13} | {'Süre (ms)':<10} | {'Bulunan Rota'}")
+    print("-" * 90)
+
+    for yontem in ["BFS", "DFS", "IDS", "UCS"]:
+        sonuc = arama_ajani.karar_uret({
+            "baslangic": baslangic_noktasi,
+            "hedef": hedef_birim,
+            "algoritma": yontem
+        })
+        rota_metni = " -> ".join(sonuc["rota"]) if sonuc["rota"] else "Rota Yok"
+        print(
+            f"{sonuc['algoritma']:<10} | "
+            f"{sonuc['toplam_maliyet']:<8} | "
+            f"{sonuc['genisletilen_dugum_sayisi']:<13} | "
+            f"{sonuc['islem_suresi_ms']:<10} | "
+            f"{rota_metni}"
+        )
+        print(f"   OPEN (Kalan) : {sonuc['open_list']}")
+        print(f"   CLOSED       : {sonuc['closed_list']}\n")
