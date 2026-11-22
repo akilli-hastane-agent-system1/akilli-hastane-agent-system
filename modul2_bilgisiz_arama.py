@@ -140,3 +140,78 @@ class BilgisizAramaAjani(AjanTabani):
                     open_kumesi.add(komsu)
 
         return self._sonuc_paketle("BFS", None, float("inf"), baslangic_zamani, [], closed_list)
+
+    # -----------------------------------------------------------------
+    # ALGORİTMA 2: DERİNLİK ÖNCELİKLİ ARAMA (DFS - Depth-First Search)
+    # -----------------------------------------------------------------
+    def dfs(self, baslangic, hedef):
+        """
+        Bulduğu ilk daldan en derine inerek hedefi arar.
+        OPEN listesi LIFO Yığın ile yönetilir.
+        """
+        baslangic_zamani = time.perf_counter()
+
+        if baslangic not in self.graf or hedef not in self.graf:
+            return self._sonuc_paketle("DFS", None, float("inf"), baslangic_zamani, [], [])
+
+        open_yigin = Yigin()
+        open_yigin.ekle((baslangic, [baslangic], 0))
+        open_kumesi = {baslangic}
+        closed_list = []
+
+        while not open_yigin.bos_mu():
+            mevcut_dugum, yol, maliyet = open_yigin.cikar()
+            open_kumesi.discard(mevcut_dugum)
+
+            if mevcut_dugum == hedef:
+                kalan_open = [eleman[0] for eleman in open_yigin.elemanlar]
+                return self._sonuc_paketle("DFS", yol, maliyet, baslangic_zamani, kalan_open, closed_list)
+
+            if mevcut_dugum not in closed_list:
+                closed_list.append(mevcut_dugum)
+
+                for komsu, kenar_maliyeti in self.graf[mevcut_dugum].items():
+                    if komsu not in closed_list and komsu not in open_kumesi:
+                        open_yigin.ekle((komsu, yol + [komsu], maliyet + kenar_maliyeti))
+                        open_kumesi.add(komsu)
+
+        return self._sonuc_paketle("DFS", None, float("inf"), baslangic_zamani, [], closed_list)
+
+    # -----------------------------------------------------------------
+    # ALGORİTMA 3: YİNELEMELİ DERİNLEŞEN ARAMA (IDS - Iterative Deepening Search)
+    # -----------------------------------------------------------------
+    def ids(self, baslangic, hedef):
+        """
+        Derinlik limitini 0'dan başlatıp her turda 1 artırarak DFS çalıştırır.
+        En az adım garantisi ile düşük bellek kullanımını birleştirir.
+        """
+        baslangic_zamani = time.perf_counter()
+
+        if baslangic not in self.graf or hedef not in self.graf:
+            return self._sonuc_paketle("IDS", None, float("inf"), baslangic_zamani, [], [])
+
+        tum_genisletilenler = []
+        maksimum_derinlik = len(self.graf)
+
+        for derinlik_limiti in range(maksimum_derinlik + 1):
+            open_yigin = Yigin()
+            open_yigin.ekle((baslangic, [baslangic], 0, 0))  # (dugum, yol, maliyet, derinlik)
+            closed_list = []
+
+            while not open_yigin.bos_mu():
+                mevcut_dugum, yol, maliyet, derinlik = open_yigin.cikar()
+
+                if mevcut_dugum == hedef:
+                    tum_genisletilenler.extend(closed_list)
+                    kalan_open = [eleman[0] for eleman in open_yigin.elemanlar]
+                    return self._sonuc_paketle("IDS", yol, maliyet, baslangic_zamani, kalan_open, tum_genisletilenler)
+
+                if derinlik < derinlik_limiti and mevcut_dugum not in closed_list:
+                    closed_list.append(mevcut_dugum)
+                    for komsu, kenar_maliyeti in self.graf[mevcut_dugum].items():
+                        if komsu not in yol:  # Mevcut dalda döngüyü önle
+                            open_yigin.ekle((komsu, yol + [komsu], maliyet + kenar_maliyeti, derinlik + 1))
+
+            tum_genisletilenler.extend(closed_list)
+
+        return self._sonuc_paketle("IDS", None, float("inf"), baslangic_zamani, [], tum_genisletilenler)
