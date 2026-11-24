@@ -44,4 +44,41 @@ def algoritmalari_otomatik_kaydet(ad, fonksiyon):
     # kafa karisikligi olmasin diye algoritmalari buyuk harfe ceviriyoruz, SLD MNHTN gibi
 
 
+# -----
+
+# ajan tabanindan bilgisiz arama ajanina oradan da bilgili arama ajanlarina 
+class BilgiliAramaAjani(BilgisizAramaAjani):
+
+    def __init__(self, hastane_ortami):
+        super().__init__(hastane_ortami) # bilgisiz arama constructoru
+
+        self.ajan_kodu = "AJAN-02B"
+        self.ajan_adi = "Bilgili arama Ajanı"
+        self.hedef_modul = "Modul 2 bilgili arama"
+        self.koordinatlar = hastane_ortami.dugum_koordinatlari # koordinatlar , x y
+
+    def h_sezgisel(self, dugum, hedef, sezgisel_adi="MNHTN"):
+
+        return sezgiseller[sezgisel_adi.upper()](self.koordinatlar, dugum, hedef)
+
+        # bilgili arama algoritmalari icin ortak tanimlama
+        # sezgiseller["SLD"] gibi direkt kullanim icin
+
+
+    def karar_uret(self, aktif_veri):
+
+        algoritma = aktif_veri.get("algoritma", "UCS").upper()
+        # algoritma yoksa rol 3 seymanur vasrayılan ucs algoritmasi
+
+        if algoritma in bilgili_algoritmalar:
+            sezgisel_adi = aktif_veri.get("sezgisel", "MNHTN")
+            return bilgili_algoritmalar[algoritma](
+                self, aktif_veri["baslangic"], aktif_veri["hedef"], sezgisel_adi
+            )
+
+
+        return super().karar_uret(aktif_veri)
+        # kayit yoksa onceki modul yani seymanurun karar uretimine fırlatıyoruz
+
+
 
