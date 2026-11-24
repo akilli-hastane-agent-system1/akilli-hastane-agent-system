@@ -82,3 +82,35 @@ class BilgiliAramaAjani(BilgisizAramaAjani):
 
 
 
+# -----
+
+# gecici test alani
+# python modul2_1_rol4_ortak_arayuz.py
+
+if __name__ == "__main__":
+
+    from modul1_ajan_peas import AkilliHastaneOrtami
+
+    hastane = AkilliHastaneOrtami()
+    ajan = BilgiliAramaAjani(hastane) 
+    hedef = "Ameliyathane_Kat2"
+ 
+    print(f" MODUL 2 SEZGISEL DEGER TABLOSU (Hedef: {hedef})")
+    print("." * 60)
+    print(f"{'Düğüm':<20} | {'Manhattan':<10} | {'SLD':<10}")
+    
+
+    for dugum in hastane.hastane_grafi:
+        manhattan_degeri = ajan.h_sezgisel(dugum, hedef, "MNHTN")
+        sld_degeri = round(ajan.h_sezgisel(dugum, hedef, "SLD"), 2)
+        print(f"{dugum:<20} | {manhattan_degeri:<10} | {sld_degeri:<10}")
+
+
+    print("\nVar olan bilgili algoritmalar:", list(bilgili_algoritmalar.keys()))
+    # suan bostur, ekledikce cikacak
+
+    ucs_sonuc = ajan.karar_uret({"baslangic": "Acil_Giris", "hedef": hedef, "algoritma": "UCS"})
+    print("Yonlendirme testi (UCS -> Rol 3):", ucs_sonuc["toplam_maliyet"])
+
+
+
