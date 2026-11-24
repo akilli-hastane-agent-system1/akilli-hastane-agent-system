@@ -85,7 +85,7 @@ class BilgiliAramaAjani(BilgisizAramaAjani):
 # -----
 
 # gecici test alani
-# python modul2_1_rol4_ortak_arayuz.py
+# python modul2b_1_bilgili_ortak.py
 
 if __name__ == "__main__":
 
