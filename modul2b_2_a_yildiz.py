@@ -42,6 +42,8 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
     g_degerleri = {baslangic: 0} # anlik 0
 
     closed_list=[]
+    adim_izi = []
+    # kayıt
 
     h_baslangic = ajan.h_sezgisel(baslangic, hedef, sezgisel_adi)
     open_kuyruk.ekle(0 + h_baslangic, (baslangic, [baslangic], 0))
@@ -49,7 +51,7 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
 
     while not open_kuyruk.bos_mu():
         f_degeri, veri = open_kuyruk.cikar()
-    # min f degerli cikar
+        # min f degerli cikar
 
         mevcut_dugum, yol, g_mevcut = veri
 
@@ -60,7 +62,12 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
 
         if mevcut_dugum == hedef:
             kalan_open = open_dugumleri(open_kuyruk, closed_list)
-            return ajan._sonuc_paketle(algoritma_adi, yol, g_mevcut, baslangic_zamani, kalan_open, closed_list)
+            sonuc = ajan._sonuc_paketle(algoritma_adi, yol, g_mevcut, baslangic_zamani, kalan_open, closed_list)
+            sonuc["adim_izi"] = adim_izi
+
+            return sonuc
+
+            # adim izi degiskeninde bekletiyoruz
 
         # kuyruktan cikarken ekleme yapiyoruz
         # eklerken yaparsak opt. saglanmayabilir
@@ -72,9 +79,9 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
             if komsu in closed_list:
                 continue
 
-        # kapali komsulara tekrar bakmiyoruz
+            # kapali komsulara tekrar bakmiyoruz
 
-        # komsuya ilk kez ulasiyorsak ( yani sonsuz ) veya daha ucuz yol varsa;
+            # komsuya ilk kez ulasiyorsak ( yani sonsuz ) veya daha ucuz yol varsa;
             yeni_g = g_mevcut + kenar_maliyeti
 
             if yeni_g < g_degerleri.get(komsu, float("inf")):
@@ -83,7 +90,19 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
                 f_komsu = yeni_g + ajan.h_sezgisel(komsu, hedef, sezgisel_adi) # f = g + h
                 open_kuyruk.ekle(f_komsu, (komsu, yol + [komsu], yeni_g))
 
-    return ajan._sonuc_paketle(algoritma_adi, None, float("inf"), baslangic_zamani, [], closed_list)
+        adim_izi.append({
+            "adim": len(closed_list),
+            "genisletilen": mevcut_dugum,
+            "g": g_mevcut,
+            "h": round(f_degeri - g_mevcut, 2),
+            "f": round(f_degeri, 2),
+            "open": open_dugumleri(open_kuyruk, closed_list),
+            "closed": list(closed_list)
+        })
+
+    sonuc = ajan._sonuc_paketle(algoritma_adi, None, float("inf"), baslangic_zamani, [], closed_list)
+    sonuc["adim_izi"] = adim_izi
+    return sonuc
     # hedefe ulasamama durumu
 
 algoritmalari_otomatik_kaydet("ASTAR", a_yildiz)
