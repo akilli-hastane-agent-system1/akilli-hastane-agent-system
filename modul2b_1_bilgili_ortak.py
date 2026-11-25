@@ -1,4 +1,4 @@
-# suanlik modul 2 bilgili aramada tek rolde 2 kisi bulundan dolayi
+# suanlik modul 2 bilgili aramada tek rolde 2 kisi bulundugundan dolayi
 # bu kisim ortak bir arayuz olmasi adina kurulmustur
 # buradan ilerlenecektir
 
@@ -42,7 +42,7 @@ bilgili_algoritmalar = {}
 def algoritmalari_otomatik_kaydet(ad, fonksiyon):
 
     bilgili_algoritmalar[ad.upper()] = fonksiyon
-    # kafa karisikligi olmasin diye algoritmalari buyuk harfe ceviriyoruz, SLD MNHTN gibi
+    # kafa karisikligi olmasin diye algoritmalari buyuk harfe ceviriyoruz, ASTAR GREEDY gibi
 
 # algoritma kaydetme
 
@@ -86,7 +86,7 @@ class BilgiliAramaAjani(BilgisizAramaAjani):
     def karar_uret(self, aktif_veri):
 
         algoritma = aktif_veri.get("algoritma", "UCS").upper()
-        # algoritma yoksa rol 3 seymanur vasrayılan ucs algoritmasi
+        # algoritma yoksa rol 3 seymanur varsayilan ucs algoritmasi
 
         if algoritma in bilgili_algoritmalar:
             sezgisel_adi = aktif_veri.get("sezgisel", "MNHTN")
@@ -103,7 +103,7 @@ class BilgiliAramaAjani(BilgisizAramaAjani):
 # -----
 
 # gecici test alani
-# python modul2_1_rol4_ortak_arayuz.py
+# python modul2b_1_bilgili_ortak.py
 
 if __name__ == "__main__":
 

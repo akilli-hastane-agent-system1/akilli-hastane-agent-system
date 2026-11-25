@@ -1,0 +1,74 @@
+................................................................................................
+ ISE 315 - AKILLI HASTANE | MODUL 2: ARAMA ALGORITMALARI KARSILASTIRMA RAPORU
+................................................................................................
+................................................................................................
+ [1] DURUM UZAYI G=(V,E)
+................................................................................................
+ Dugum sayisi |V| : 8
+ Kenar sayisi |E| : 8
+ Algoritma sayisi : 8 (4 bilgisiz + 2 bilgili x 2 sezgisel)
+................................................................................................
+ [2] SEZGISEL DEGERLER h(n)  (hedef: Ameliyathane_Kat2)
+................................................................................................
+ Dugum                | Manhattan |     SLD | Gercek (h*)
+ ........................................................
+ Acil_Giris           |        22 |   15.62 |          28
+ Triyaj_Alani         |        15 |   10.82 |          20
+ Kurye_Koridoru       |        16 |   11.66 |          38
+ Muayene_Kat_1        |         9 |     9.0 |          25
+ Asansor              |        10 |    7.21 |          12
+ Yogun_Bakim          |        19 |   13.45 |          45
+ Ameliyathane_Kat2    |         0 |     0.0 |           0
+ Eczane_Depo          |        10 |    10.0 |          50
+
+ Her satirda Manhattan ve SLD <= gercek maliyet -> iki sezgisel de kabul edilebilir.
+................................................................................................
+ [3] SENARYO: Acil_Giris -> Ameliyathane_Kat2  (optimal maliyet: 28)
+................................................................................................
+ Algoritma      | Maliyet | Genis. | Sure(ms) | Opt.  | Rota
+ ...............................................................................................
+ BFS            |      48 |      7 |   0.0247 | HAYIR | Acil > Triyaj > Muayene > Ameliyathane
+ DFS            |      28 |      3 |   0.0141 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+ IDS            |      28 |      7 |   0.0414 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+ UCS            |      28 |      6 |   0.0381 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+ GREEDY(MNHTN)  |      48 |      3 |   0.0632 | HAYIR | Acil > Triyaj > Muayene > Ameliyathane
+ GREEDY(SLD)    |      28 |      3 |   0.0766 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+ A*(MNHTN)      |      28 |      4 |   0.0885 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+ A*(SLD)        |      28 |      4 |   0.1034 | EVET  | Acil > Triyaj > Asansor > Ameliyathane
+................................................................................................
+ [4] SENARYO: Asansor -> Yogun_Bakim  (optimal maliyet: 43)
+................................................................................................
+ Algoritma      | Maliyet | Genis. | Sure(ms) | Opt.  | Rota
+ ...............................................................................................
+ BFS            |      43 |      6 |   0.0226 | EVET  | Asansor > Triyaj > Muayene > Yogun
+ DFS            |      57 |      3 |   0.0136 | HAYIR | Asansor > Ameliyathane > Muayene > Yogun
+ IDS            |      57 |      7 |   0.0467 | HAYIR | Asansor > Ameliyathane > Muayene > Yogun
+ UCS            |      43 |      7 |   0.0752 | EVET  | Asansor > Triyaj > Muayene > Yogun
+ GREEDY(MNHTN)  |      43 |      3 |   0.0614 | EVET  | Asansor > Triyaj > Muayene > Yogun
+ GREEDY(SLD)    |      57 |      3 |   0.0676 | HAYIR | Asansor > Ameliyathane > Muayene > Yogun
+ A*(MNHTN)      |      43 |      5 |   0.0997 | EVET  | Asansor > Triyaj > Muayene > Yogun
+ A*(SLD)        |      43 |      5 |   0.1326 | EVET  | Asansor > Triyaj > Muayene > Yogun
+................................................................................................
+ [5] GENEL OZET: 56 baslangic-hedef cifti ortalamasi
+................................................................................................
+ Algoritma      | Ort.Maliyet | Ort.Genis. | Sure(ms) | Optimal Oran
+ ..................................................................
+ BFS            |       31.57 |        4.0 |   0.0211 | 48/56 (%86)
+ DFS            |       29.71 |        4.0 |   0.0157 | 52/56 (%93)
+ IDS            |       29.71 |       6.32 |    0.037 | 52/56 (%93)
+ UCS            |       28.71 |        4.0 |   0.0285 | 56/56 (%100)
+ GREEDY(MNHTN)  |       30.14 |       2.59 |   0.0346 | 52/56 (%93)
+ GREEDY(SLD)    |       28.96 |       2.66 |   0.0415 | 55/56 (%98)
+ A*(MNHTN)      |       28.71 |        3.0 |   0.0459 | 56/56 (%100)
+ A*(SLD)        |       28.71 |       3.16 |   0.0578 | 56/56 (%100)
+................................................................................................
+ [6] SONUCLAR
+................................................................................................
+ Her ciftte optimal olanlar  : UCS, A*(MNHTN), A*(SLD)
+ En az dugum acan            : GREEDY(MNHTN) (ort. 2.59)
+ A*(MNHTN)                   : UCS'ye gore %25 daha az dugum, ayni optimal maliyet
+ A*(SLD)                     : UCS'ye gore %21 daha az dugum, ayni optimal maliyet
+ GREEDY(MNHTN)               : 4 ciftte optimal degil, hizli ama garantisiz
+ GREEDY(SLD)                 : 1 ciftte optimal degil, hizli ama garantisiz
+ Not                         : graf kucuk, sure farki anlamsiz; asil olcut genisletilen dugum
+

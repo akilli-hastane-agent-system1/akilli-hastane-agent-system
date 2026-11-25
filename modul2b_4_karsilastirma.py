@@ -134,7 +134,7 @@ def genel_ozet(ajan, hastane, numara):
 
     baslik(f"[{numara}] GENEL OZET: {len(ciftler)} baslangic-hedef cifti ortalamasi")
     print(f" {'Algoritma':<14} | {'Ort.Maliyet':>11} | {'Ort.Genis.':>10} | {'Sure(ms)':>8} | Optimal Oran")
-    print(" " + "-" * 66)
+    print(" " + "." * 66)
 
     ozet = []
     n = len(ciftler)

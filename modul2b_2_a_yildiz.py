@@ -48,12 +48,11 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
             kalan_open = open_dugumleri(open_kuyruk, closed_list)
             sonuc = ajan._sonuc_paketle(algoritma_adi, yol, g_mevcut, baslangic_zamani, kalan_open, closed_list)
             sonuc["adim_izi"] = adim_izi
+            # adim izi degiskeninde bekletiyoruz
 
             return sonuc
 
-            # adim izi degiskeninde bekletiyoruz
-
-        # kuyruktan cikarken ekleme yapiyoruz
+        # hedef testini kuyruktan cikarken yapiyoruz
         # eklerken yaparsak opt. saglanmayabilir
         # ardindan closed'a atiyoruz
 
@@ -174,5 +173,4 @@ if __name__ == "__main__":
 
 
 # a* her komsu icin ayrica hn hesapliyor
-# bizimm graf 8 dugum
-# 
+# bizim graf 8 dugum oldugu icin sure farki anlamsiz, asil olcut genisletilen dugum sayisi 
