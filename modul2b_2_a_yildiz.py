@@ -108,3 +108,82 @@ def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
 algoritmalari_otomatik_kaydet("ASTAR", a_yildiz)
 # astar adiyla ortak'a atiyoruz
 # ajan.karar_uret ile kullananabiliriz
+
+
+
+# test alani
+# python modul2b_2_a_yildiz.py 
+
+if __name__ == "__main__":
+
+    from modul1_ajan_peas import AkilliHastaneOrtami
+    from modul2b_1_bilgili_ortak import BilgiliAramaAjani
+
+    hastane = AkilliHastaneOrtami()
+    ajan = BilgiliAramaAjani(hastane)
+    baslangic = "Acil_Giris"
+    hedef = "Ameliyathane_Kat2"
+    # ana senaryo acilden ameliyathaneye
+
+    # ucs ile a* ayni maliyeti buluyor mu kac dugum aciyorlar ona bakiyoruz
+
+    
+    print(f" modul 2: A* karsilastirmasi ({baslangic} -> {hedef})")
+    print("." * 30)
+    print(f"{'Algoritma':<12} | {'Maliyet':<8} | {'Genisletilen':<13} | {'Sure (ms)':<10} | {'Bulunan Rota'}")
+    
+
+    testler = [
+        {"algoritma": "UCS"},
+        {"algoritma": "ASTAR", "sezgisel": "MNHTN"},
+        {"algoritma": "ASTAR", "sezgisel": "SLD"}
+    ]
+    # ucs kiyas icin
+
+    for test in testler:
+        istek = {"baslangic": baslangic, "hedef": hedef}
+        istek.update(test)
+
+        sonuc = ajan.karar_uret(istek)
+
+        rota_metni = " -> ".join(sonuc["rota"]) if sonuc["rota"] else "Rota Yok"
+
+        print(f"{sonuc['algoritma']:<12} | {sonuc['toplam_maliyet']:<8} | "
+              f"{sonuc['genisletilen_dugum_sayisi']:<13} | {sonuc['islem_suresi_ms']:<10} | {rota_metni}")
+
+    # her adimda acilan dugum, g h f degerleri ve open listesi
+
+    print("\nA* (MNHTN) ADIM ADIM IZ:")
+    print(f"{'Adim':<5} | {'Genisletilen':<18} | {'g':<5} | {'h':<6} | {'f':<6} | OPEN")
+    print("-" * 90)
+
+    iz_sonucu = ajan.karar_uret({"baslangic": baslangic, "hedef": hedef,
+                                 "algoritma": "ASTAR", "sezgisel": "MNHTN"})
+
+    for adim in iz_sonucu["adim_izi"]:
+        print(f"{adim['adim']:<5} | {adim['genisletilen']:<18} | {adim['g']:<5} | "
+              f"{adim['h']:<6} | {adim['f']:<6} | {adim['open']}")
+
+
+    # optimallik, optimal mi
+
+    print("\nOPTIMALLIK TESTI: Tum dugum ciftlerinde A* maliyeti == UCS maliyeti mi?")
+    hatali = 0
+    toplam = 0
+
+    for bas in hastane.hastane_grafi:
+        for hed in hastane.hastane_grafi:
+
+            ucs_maliyet = ajan.karar_uret({"baslangic": bas, "hedef": hed,
+                                           "algoritma": "UCS"})["toplam_maliyet"]
+
+            for sezgisel in ["MNHTN", "SLD"]:
+                a_maliyet = ajan.karar_uret({"baslangic": bas, "hedef": hed,
+                                             "algoritma": "ASTAR", "sezgisel": sezgisel})["toplam_maliyet"]
+                toplam += 1
+
+                if a_maliyet != ucs_maliyet:
+                    hatali += 1
+                    print(f"  HATA: {bas} -> {hed} ({sezgisel}) A*={a_maliyet}, UCS={ucs_maliyet}")
+
+    print(f"  {toplam} testten {toplam - hatali} tanesi basarili.")
