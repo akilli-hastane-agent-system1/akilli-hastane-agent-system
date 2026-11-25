@@ -112,6 +112,96 @@ def senaryo_tablosu(ajan, numara, baslangic, hedef):
               f"{optimal_mi:<5} | {kisa_rota(sonuc['rota'])}")
 
 
+
+# ----
+
+
+def genel_ozet(ajan, hastane, numara):
+
+    dugumler = list(hastane.hastane_grafi.keys())
+
+    ciftler = []
+    for bas in dugumler:
+        for hed in dugumler:
+            if bas != hed:
+                ciftler.append((bas, hed))
+    # kendisine giden ciftleri almiyoruz, 8 x 7 = 56 cift
+
+    optimaller = {}
+    for bas, hed in ciftler:
+        optimaller[(bas, hed)] = optimal_maliyet(ajan, bas, hed)
+    # her ciftin optimal maliyetini bir kere hesapliyoruz
+
+    baslik(f"[{numara}] GENEL OZET: {len(ciftler)} baslangic-hedef cifti ortalamasi")
+    print(f" {'Algoritma':<14} | {'Ort.Maliyet':>11} | {'Ort.Genis.':>10} | {'Sure(ms)':>8} | Optimal Oran")
+    print(" " + "-" * 66)
+
+    ozet = []
+    n = len(ciftler)
+
+    for ayar in algoritma_listesi:
+        toplam_maliyet = 0
+        toplam_genisletilen = 0
+        toplam_sure = 0
+        optimal_sayisi = 0
+
+        for bas, hed in ciftler:
+            sonuc = calistir(ajan, bas, hed, ayar)
+            toplam_maliyet += sonuc["toplam_maliyet"]
+            toplam_genisletilen += sonuc["genisletilen_dugum_sayisi"]
+            toplam_sure += sonuc["ortalama_sure_ms"]
+            if sonuc["toplam_maliyet"] == optimaller[(bas, hed)]:
+                optimal_sayisi += 1
+
+        satir = {
+            "algoritma": sonuc["algoritma"],
+            "maliyet": round(toplam_maliyet / n, 2),
+            "genisletilen": round(toplam_genisletilen / n, 2),
+            "sure": round(toplam_sure / n, 4),
+            "optimal": optimal_sayisi
+        }
+        ozet.append(satir)
+        # sonucda kullanıcaz
+
+        yuzde = round(100 * optimal_sayisi / n)
+        print(f" {satir['algoritma']:<14} | {satir['maliyet']:>11} | {satir['genisletilen']:>10} | "
+              f"{satir['sure']:>8} | {optimal_sayisi}/{n} (%{yuzde})")
+
+    return ozet, n
+
+
+def sonuclar(ozet, n, numara):
+
+    baslik(f"[{numara}] SONUCLAR")
+
+    tam_optimal = []
+    en_az = ozet[0]
+    ucs = None
+
+    for s in ozet:
+        if s["optimal"] == n:
+            tam_optimal.append(s["algoritma"])
+        if s["genisletilen"] < en_az["genisletilen"]:
+            en_az = s
+        if s["algoritma"] == "UCS":
+            ucs = s
+
+
+    print(f" {'Her ciftte optimal olanlar':<28}: {', '.join(tam_optimal)}")
+    print(f" {'En az dugum acan':<28}: {en_az['algoritma']} (ort. {en_az['genisletilen']})")
+
+    for s in ozet:
+        if s["algoritma"].startswith("A*"):
+            tasarruf = round(100 * (ucs["genisletilen"] - s["genisletilen"]) / ucs["genisletilen"])
+            print(f" {s['algoritma']:<28}: UCS'ye gore %{tasarruf} daha az dugum, ayni optimal maliyet")
+
+    for s in ozet:
+        if s["algoritma"].startswith("GREEDY"):
+            print(f" {s['algoritma']:<28}: {n - s['optimal']} ciftte optimal degil, hizli ama garantisiz")
+
+    print(f" {'Not':<28}: graf kucuk, sure farki anlamsiz; asil olcut genisletilen dugum")
+
+
 if __name__ == "__main__":
 
     hastane = AkilliHastaneOrtami()
@@ -128,3 +218,10 @@ if __name__ == "__main__":
     for baslangic, hedef in senaryolar:
         senaryo_tablosu(ajan, numara, baslangic, hedef)
         numara += 1
+
+    ozet, n = genel_ozet(ajan, hastane, numara)
+    sonuclar(ozet, n, numara + 1)
+    print()
+
+
+
