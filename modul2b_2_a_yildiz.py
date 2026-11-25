@@ -10,22 +10,6 @@ from modul2b_1_bilgili_ortak import algoritmalari_otomatik_kaydet
 
 
 
-def open_dugumleri(open_kuyruk, closed_list):
-    # opendaki dugumleri tekrarsiz aliriz
-
-    dugumler = []
-
-    for eleman in open_kuyruk.elemanlar:
-
-        dugum = eleman[2][0]
-        # dugum,yol,g ve dugum adı
-
-        if dugum not in closed_list and dugum not in dugumler:
-            
-            dugumler.append(dugum)
-
-    return dugumler
-
 
 def a_yildiz(ajan, baslangic, hedef, sezgisel_adi="MNHTN"):
 
@@ -187,3 +171,8 @@ if __name__ == "__main__":
                     print(f"  HATA: {bas} -> {hed} ({sezgisel}) A*={a_maliyet}, UCS={ucs_maliyet}")
 
     print(f"  {toplam} testten {toplam - hatali} tanesi basarili.")
+
+
+# a* her komsu icin ayrica hn hesapliyor
+# bizimm graf 8 dugum
+# 

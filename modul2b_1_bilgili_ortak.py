@@ -5,8 +5,9 @@
 
 import math 
 
-from modul2_bilgisiz_arama import BilgisizAramaAjani 
+from modul2b_1_bilgili_ortak import algoritmalari_otomatik_kaydet, open_dugumleri
 # rol 3 seymanurun bilgisiz ajani
+
 
 
 # once manhattan ardindan da kus ucusu sezgisel yontemi kullanacagiz
@@ -43,6 +44,23 @@ def algoritmalari_otomatik_kaydet(ad, fonksiyon):
     bilgili_algoritmalar[ad.upper()] = fonksiyon
     # kafa karisikligi olmasin diye algoritmalari buyuk harfe ceviriyoruz, SLD MNHTN gibi
 
+# algoritma kaydetme
+
+def open_dugumleri(open_kuyruk, closed_list):
+    # opendaki dugumleri tekrarsiz aliriz
+
+    dugumler = []
+
+    for eleman in open_kuyruk.elemanlar:
+
+        dugum = eleman[2][0]
+        # dugum,yol,g ve dugum adı
+
+        if dugum not in closed_list and dugum not in dugumler:
+            
+            dugumler.append(dugum)
+
+    return dugumler
 
 # -----
 
