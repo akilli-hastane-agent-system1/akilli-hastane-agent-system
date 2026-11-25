@@ -6,7 +6,7 @@ import time
 
 from modul2_bilgisiz_arama import OncelikliKuyruk
 
-from modul2b_1_bilgili_ortak import algoritmalari_otomatik_kaydet
+from modul2b_1_bilgili_ortak import algoritmalari_otomatik_kaydet, open_dugumleri
 
 
 

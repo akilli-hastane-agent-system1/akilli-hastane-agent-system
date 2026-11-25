@@ -5,7 +5,7 @@
 
 import math 
 
-from modul2b_1_bilgili_ortak import algoritmalari_otomatik_kaydet, open_dugumleri
+from modul2_bilgisiz_arama import BilgisizAramaAjani
 # rol 3 seymanurun bilgisiz ajani
 
 
